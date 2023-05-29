@@ -8,4 +8,6 @@ int main()
 {
 	Tests::TestGetDestinationData();
 	Tests::TestBytecodeExecutor();
+
+	Tests::TestOpcodeExecution();
 }

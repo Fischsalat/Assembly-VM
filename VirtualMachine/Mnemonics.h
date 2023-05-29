@@ -81,7 +81,9 @@ enum class EAddressingMode : uint8_t
     Immediate = 0b00, //  5
     Register = 0b001, //  Q2
     Memory = 0b010,   // [Q2]
-    Relative = 0b11   // [Q2 + 0x10]
+    Relative = 0b11,  // [Q2 + 0x10]
+
+    None = 0b100      // Invalid
 };
 
 struct Operand
@@ -108,6 +110,9 @@ public:
     {
         return bHasOperandSizeInfo;
     }
+
+private:
+    friend class Tests;
 };
 
 struct OperandSizeInfo
@@ -121,6 +126,11 @@ public:
     inline int32_t GetDestinationSizeBytes()
     {
         return DestSize + 1;
+    }
+
+    inline int32_t GetDestinationHighestBit()
+    {
+        return 1 << DestSize;
     }
 
     inline int32_t GetSourceSizeBytes()

@@ -72,6 +72,8 @@ void Dispatcher::Init()
 	Mappings[(uint8_t)Mnemonic::SYS] = [](Operand, OperandSizeInfo, uint8_t*) -> void { return; };
 }
 
+extern void ANDImpl(Operand OperantSpecifics, OperandSizeInfo SizeInfo, uint8_t* Data);
+
 void Dispatcher::Dispatch(ByteStream& Stream)
 {
 	static_assert(sizeof(Operand) == sizeof(uint8_t));

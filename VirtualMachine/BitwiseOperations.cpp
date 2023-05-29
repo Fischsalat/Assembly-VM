@@ -41,7 +41,7 @@ inline uint64_t GetSourceData(EAddressingMode Mode, uint8_t* Data, OperandSizeIn
 	else if (Mode == EAddressingMode::Immediate)
 	{
 		uint64_t OutValue = 0;
-		memcpy(&OutValue, Data, SizeInfo.GetSourceSizeBytes());
+		memcpy(&OutValue, Data + SizeInfo.GetDestinationSizeBytes(), SizeInfo.GetSourceSizeBytes());
 
 		return OutValue;
 	}
@@ -82,16 +82,63 @@ void OpcodeAND(Operand OperantSpecifics, OperandSizeInfo SizeInfo, uint8_t* Data
 	if (Res == 0)
 		FL.SetFlags(EFlags::Zero);
 
-	if (OperantSpecifics.GetDestAddressingMode() == EAddressingMode::Register)
-	{
+	SetDestOperand(OperantSpecifics, SizeInfo, Data, &Res);
+}
 
-	}
-	SetDestOperand(OperantSpecifics, SizeInfo, Data, &Res); // reads same RegisterInfo a second time (after GetDestinationData), INVALID
+void Opcode
+(
+	Operand OperantSpecifics, 
+	OperandSizeInfo SizeInfo, 
+	uint8_t* Data, 
+	uint64_t(*Action)(uint64_t Dest, uint64_t Src), 
+	void(*SetFlags)(uint64_t Dest, uint64_t Src, uint64_t Result, uint8_t HighestBit)
+)
+{
+	uint8_t* PtrBackup = Data;
+
+	uint64_t DestData = GetDestinationData(OperantSpecifics.GetDestAddressingMode(), Data);
+	uint64_t SrcData = GetSourceData(SizeInfo.GetSrcAddressingMode(), Data, SizeInfo);
+
+	uint64_t Result = Action(DestData, SrcData);
+
+	SetFlags(DestData, SrcData, Result, SizeInfo.GetDestinationHighestBit());
+
+	SetDestOperand(OperantSpecifics, SizeInfo, Data, &Result);
+}
+
+void ANDImpl(Operand OperantSpecifics, OperandSizeInfo SizeInfo, uint8_t* Data)
+{
+	static auto AND = [](uint64_t DestinationData, uint64_t SourceData) -> uint64_t
+	{
+		return DestinationData & SourceData;
+	};
+
+	static auto SetFlags = [](uint64_t Dest, uint64_t Src, uint64_t Result, uint8_t HighestBit) -> void
+	{
+		if (Result == 0)
+			FL.SetFlags(EFlags::Zero);
+	};
+
+	Opcode(OperantSpecifics, SizeInfo, Data, AND, SetFlags);
 }
 
 void OpcodeOR(Operand OperantSpecifics, OperandSizeInfo SizeInfo, uint8_t* Data)
 {
+	static auto OR = [](uint64_t DestinationData, uint64_t SourceData) -> uint64_t
+	{
+		return DestinationData | SourceData;
+	};
 
+	static auto SetFlags = [](uint64_t Dest, uint64_t Src, uint64_t Result, uint8_t HighestBit) -> void
+	{
+		if (Result == 0)
+			FL.SetFlags(EFlags::Zero);
+
+		if ((Dest & HighestBit) && (Src & HighestBit))
+			FL.SetFlags(EFlags::Overflow);
+	};
+
+	Opcode(OperantSpecifics, SizeInfo, Data, OR, SetFlags);
 }
 
 void OpcodeXOR(Operand OperantSpecifics, OperandSizeInfo SizeInfo, uint8_t* Data)

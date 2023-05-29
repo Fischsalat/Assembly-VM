@@ -67,7 +67,7 @@ struct RegisterInfo
 {
 private:
     uint8_t RegisterIdx : 5;
-    uint8_t RegByteCount : 2;
+    uint8_t SubRegShiftCount : 2;
     uint8_t bIsFloatRegister : 1;
 
 public:
@@ -78,18 +78,21 @@ public:
 
     inline uint8_t GetSubregShiftCount()
     {
-        return RegByteCount;
+        return SubRegShiftCount;
     }
 
     inline uint8_t GetSubregByteCount()
     {
-        return 1 << RegByteCount ;
+        return 1 << SubRegShiftCount;
     }
 
     inline bool IsFloatRegister()
     {
         return bIsFloatRegister;
     }
+
+private:
+    friend class Tests;
 };
 
 enum class EFlags : uint64_t
@@ -113,6 +116,9 @@ EFlags operator|(EFlags L, EFlags R);
 struct FlagsRegister
 {
 private:
+    using UnderlayingFlagType = std::underlying_type<EFlags>::type;
+
+private:
     //Zero - Flag[ZF] - [0b0001] - comparison resulted is equal
     uint64_t Zero : 1;
 
@@ -132,6 +138,8 @@ public:
     void SetFlags(EFlags F);
 
     void AddFlags(EFlags F);
+
+    bool IsFlagSet(EFlags F);
 
     bool IsZeroSet() const;
     bool IsGreaterSet() const;

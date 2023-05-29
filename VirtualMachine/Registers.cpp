@@ -25,16 +25,17 @@ void FlagsRegister::ClearAll()
 // Clears any existing flags
 void FlagsRegister::SetFlags(EFlags F)
 {
-    using UnderlayingType = std::underlying_type<EFlags>::type;
-
-    *reinterpret_cast<uint64_t*>(this) = static_cast<UnderlayingType>(F);
+    *reinterpret_cast<uint64_t*>(this) = static_cast<UnderlayingFlagType>(F);
 }
 
 void FlagsRegister::AddFlags(EFlags F)
 {
-    using UnderlayingType = std::underlying_type<EFlags>::type;
+    *reinterpret_cast<uint64_t*>(this) |= static_cast<UnderlayingFlagType>(F);
+}
 
-    *reinterpret_cast<uint64_t*>(this) |= static_cast<UnderlayingType>(F);
+bool FlagsRegister::IsFlagSet(EFlags F)
+{
+    return *reinterpret_cast<uint64_t*>(this) & static_cast<UnderlayingFlagType>(F);
 }
 
 bool FlagsRegister::IsZeroSet() const
