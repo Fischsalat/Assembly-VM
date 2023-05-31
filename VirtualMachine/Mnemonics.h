@@ -133,7 +133,7 @@ public:
         return GetDestinationSizeBytes() << 3;
     }
 
-    inline int32_t GetDestinationHighestBit()
+    inline uint64_t GetDestinationHighestBit()
     {
         return 1 << GetDestinationBitSize();
     }
