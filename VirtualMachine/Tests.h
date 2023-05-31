@@ -11,12 +11,6 @@ extern uint64_t GetSourceData(EAddressingMode Mode, uint8_t* Data, OperandSizeIn
 
 class Tests
 {
-private:
-	static uint8_t OperandSizeInfoBuilder()
-	{
-
-	}
-
 public:
 	static void TestGetDestinationData()
 	{
@@ -75,6 +69,13 @@ public:
 
 	static void TestOpcodeExecution()
 	{
+		static auto SetRgisters = [](ERegisters Reg1, uint64_t Val1, ERegisters Reg2, uint64_t Val2) -> void
+		{
+			Registers.ZeroAll();
+			*(reinterpret_cast<uint64_t*>(&Registers) + static_cast<uint8_t>(Reg1)) = Val1;
+			*(reinterpret_cast<uint64_t*>(&Registers) + static_cast<uint8_t>(Reg2)) = Val2;
+		};
+
 		RegisterInfo DestRegInfo;
 		DestRegInfo.RegisterIdx = 0x0;
 		DestRegInfo.SubRegShiftCount = 0b111;
@@ -85,13 +86,32 @@ public:
 		SrcRegInfo.SubRegShiftCount = 0b111;
 		SrcRegInfo.bIsFloatRegister = false;
 
-		// Prepare registers
-		Registers.ZeroAll();
-		Registers.Q0 = 0b11011;
-		Registers.Q3 = 0b10101;
+		SetRgisters(ERegisters::Q0, 0b11011, ERegisters::Q3, 0b10101);
+		Tests::TestOpcode<true>(Mnemonic::AND, EAddressingMode::Register, DestRegInfo, EAddressingMode::Register, SrcRegInfo, 0b11011 & 0b10101, { });
+		
+		SetRgisters(ERegisters::Q0, 0b11011, ERegisters::Q3, 0b10101); 
+		Tests::TestOpcode<true>(Mnemonic::AND, EAddressingMode::Register, DestRegInfo, EAddressingMode::Immediate, 0b10101ull, 0b11011 & 0b10101, { });
 
+
+		SetRgisters(ERegisters::Q0, 0b11011, ERegisters::Q3, 0b10101);
 		Tests::TestOpcode<true>(Mnemonic::OR, EAddressingMode::Register, DestRegInfo, EAddressingMode::Register, SrcRegInfo, 0b11011 | 0b10101, { EFlags::Overflow });
+		
+		SetRgisters(ERegisters::Q0, 0b11011, ERegisters::Q3, 0b10101);
 		Tests::TestOpcode<true>(Mnemonic::OR, EAddressingMode::Register, DestRegInfo, EAddressingMode::Immediate, 0b10101ull, 0b11011 | 0b10101, { EFlags::Overflow });
+
+
+		SetRgisters(ERegisters::Q0, 0b11011, ERegisters::Q3, 0b10101);
+		Tests::TestOpcode<true>(Mnemonic::XOR, EAddressingMode::Register, DestRegInfo, EAddressingMode::Register, SrcRegInfo, 0b11011 ^ 0b10101, { });
+		
+		SetRgisters(ERegisters::Q0, 0b11011, ERegisters::Q3, 0b10101);
+		Tests::TestOpcode<true>(Mnemonic::XOR, EAddressingMode::Register, DestRegInfo, EAddressingMode::Immediate, 0b10101ull, 0b11011 ^ 0b10101, { });
+	
+
+		SetRgisters(ERegisters::Q0, 0b11011, ERegisters::Q3, 0b10101);
+		Tests::TestOpcode<false>(Mnemonic::NOT, EAddressingMode::Register, DestRegInfo, EAddressingMode::None, 0, ~0b11011, { });
+
+		SetRgisters(ERegisters::Q0, 0b11111, ERegisters::Q3, 0b10101);
+		Tests::TestOpcode<false>(Mnemonic::NOT, EAddressingMode::Register, DestRegInfo, EAddressingMode::None, 0, ~0b11111, { EFlags::Zero });
 	}
 
 private:
@@ -101,7 +121,7 @@ private:
 		Operand Op;
 		Op.bHasOperandSizeInfo = bHasSrcOperand;
 		Op.DestAddressingMode = static_cast<uint8_t>(DestAddrMode);
-		Op.Size = (sizeof(DestType) + sizeof(SrcType)) - 1;
+		Op.Size = (sizeof(DestType) + (bHasSrcOperand ? sizeof(SrcType) : 0)) - 1;
 
 		OperandSizeInfo OpInfo;
 		OpInfo.DestSize = sizeof(DestType) - 1;
@@ -126,10 +146,13 @@ private:
 			ByteScript[i + Addon] = *(reinterpret_cast<uint8_t*>(&Dest) + i);
 		}
 
-		Addon = sizeof(DestType) + ArrayInitialSize;
-		for (int i = sizeof(SrcType) - 1; i >= 0; i--)
+		if constexpr (bHasSrcOperand)
 		{
-			ByteScript[i + Addon] = *(reinterpret_cast<uint8_t*>(&Src) + i);
+			Addon = sizeof(DestType) + ArrayInitialSize;
+			for (int i = sizeof(SrcType) - 1; i >= 0; i--)
+			{
+				ByteScript[i + Addon] = *(reinterpret_cast<uint8_t*>(&Src) + i);
+			}
 		}
 
 		ByteStream Bytecode(ByteScript, sizeof(ByteScript));

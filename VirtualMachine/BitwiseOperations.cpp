@@ -70,7 +70,7 @@ inline void SetDestOperand(Operand Op, OperandSizeInfo SizeInfo, uint8_t* Data, 
 	}
 }
 
-void OpcodeAND(Operand OperantSpecifics, OperandSizeInfo SizeInfo, uint8_t* Data)
+void ANDImpl(Operand OperantSpecifics, OperandSizeInfo SizeInfo, uint8_t* Data)
 {
 	uint8_t* PtrBackup = Data;
 
@@ -106,7 +106,7 @@ void Opcode
 	SetDestOperand(OperantSpecifics, SizeInfo, Data, &Result);
 }
 
-void ANDImpl(Operand OperantSpecifics, OperandSizeInfo SizeInfo, uint8_t* Data)
+void OpcodeAND(Operand OperantSpecifics, OperandSizeInfo SizeInfo, uint8_t* Data)
 {
 	static auto AND = [](uint64_t DestinationData, uint64_t SourceData) -> uint64_t
 	{
@@ -143,20 +143,70 @@ void OpcodeOR(Operand OperantSpecifics, OperandSizeInfo SizeInfo, uint8_t* Data)
 
 void OpcodeXOR(Operand OperantSpecifics, OperandSizeInfo SizeInfo, uint8_t* Data)
 {
+	static auto XOR = [](uint64_t DestinationData, uint64_t SourceData) -> uint64_t
+	{
+		return DestinationData ^ SourceData;
+	};
 
+	static auto SetFlags = [](uint64_t Dest, uint64_t Src, uint64_t Result, uint8_t HighestBit) -> void
+	{
+		if (Result == 0)
+			FL.SetFlags(EFlags::Zero);
+	};
+
+	Opcode(OperantSpecifics, SizeInfo, Data, XOR, SetFlags);
 }
 
 void OpcodeNOT(Operand OperantSpecifics, OperandSizeInfo SizeInfo, uint8_t* Data)
 {
+	static auto NOT = [](uint64_t DestinationData, uint64_t SourceData) -> uint64_t
+	{
+		return ~DestinationData;
+	};
 
+	static auto SetFlags = [](uint64_t Dest, uint64_t Src, uint64_t Result, uint8_t HighestBit) -> void
+	{
+		Result = 0xFFFFFFFF < HighestBit
+
+		if (Result == 0)
+			FL.SetFlags(EFlags::Zero);
+	};
+
+	Opcode(OperantSpecifics, SizeInfo, Data, NOT, SetFlags);
 }
 
 void OpcodeNOR(Operand OperantSpecifics, OperandSizeInfo SizeInfo, uint8_t* Data)
 {
+	static auto NOR = [](uint64_t DestinationData, uint64_t SourceData) -> uint64_t
+	{
+		return !(DestinationData | SourceData);
+	};
 
+	static auto SetFlags = [](uint64_t Dest, uint64_t Src, uint64_t Result, uint8_t HighestBit) -> void
+	{
+		if (Result == 0)
+			FL.SetFlags(EFlags::Zero);
+
+		// Overflow?
+	};
+
+	Opcode(OperantSpecifics, SizeInfo, Data, NOR, SetFlags);
 }
 
 void OpcodeNAND(Operand OperantSpecifics, OperandSizeInfo SizeInfo, uint8_t* Data)
 {
+	static auto NAND = [](uint64_t DestinationData, uint64_t SourceData) -> uint64_t
+	{
+		return !(DestinationData & SourceData);
+	};
 
+	static auto SetFlags = [](uint64_t Dest, uint64_t Src, uint64_t Result, uint8_t HighestBit) -> void
+	{
+		if (Result == 0)
+			FL.SetFlags(EFlags::Zero);
+
+		// Overflow?
+	};
+
+	Opcode(OperantSpecifics, SizeInfo, Data, NAND, SetFlags);
 }

@@ -67,13 +67,12 @@ enum class Mnemonic : uint8_t
     PUSH = 0x25, // Pushes a value onto the stack (register -> stack)
     POP = 0x26,  // Pops a value from the stack (stack -> register)
 
-    RET = 0x27, // Returns from a function 
+    CALL = 0x27, // Call a function 
+    RET = 0x28,  // Return from a function 
 
-    NOP = 0x28, // No Operation
+    NOP = 0x29, // No Operation
 
-    CALL = 0xFE, // Call a function
-
-    SYS = 0xFF // Systemcall
+    SYS = 0x30 // Systemcall
 };
 
 enum class EAddressingMode : uint8_t
