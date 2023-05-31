@@ -135,7 +135,7 @@ public:
 
     inline uint64_t GetDestinationHighestBit()
     {
-        return 1 << GetDestinationBitSize();
+        return 1ull << GetDestinationBitSize();
     }
 
     inline int32_t GetSourceSizeBytes()
