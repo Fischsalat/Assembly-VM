@@ -91,7 +91,7 @@ void Opcode
 	OperandSizeInfo SizeInfo, 
 	uint8_t* Data, 
 	uint64_t(*Action)(uint64_t Dest, uint64_t Src), 
-	void(*SetFlags)(uint64_t Dest, uint64_t Src, uint64_t Result, uint8_t HighestBit)
+	void(*SetFlags)(uint64_t Dest, uint64_t Src, uint64_t Result, OperandSizeInfo Info)
 )
 {
 	uint8_t* PtrBackup = Data;
@@ -101,7 +101,7 @@ void Opcode
 
 	uint64_t Result = Action(DestData, SrcData);
 
-	SetFlags(DestData, SrcData, Result, SizeInfo.GetDestinationHighestBit());
+	SetFlags(DestData, SrcData, Result, SizeInfo);
 
 	SetDestOperand(OperantSpecifics, SizeInfo, Data, &Result);
 }
@@ -113,8 +113,10 @@ void OpcodeAND(Operand OperantSpecifics, OperandSizeInfo SizeInfo, uint8_t* Data
 		return DestinationData & SourceData;
 	};
 
-	static auto SetFlags = [](uint64_t Dest, uint64_t Src, uint64_t Result, uint8_t HighestBit) -> void
+	static auto SetFlags = [](uint64_t Dest, uint64_t Src, uint64_t Result, OperandSizeInfo Info) -> void
 	{
+		Result &= Info.GetMask();
+
 		if (Result == 0)
 			FL.SetFlags(EFlags::Zero);
 	};
@@ -129,12 +131,14 @@ void OpcodeOR(Operand OperantSpecifics, OperandSizeInfo SizeInfo, uint8_t* Data)
 		return DestinationData | SourceData;
 	};
 
-	static auto SetFlags = [](uint64_t Dest, uint64_t Src, uint64_t Result, uint8_t HighestBit) -> void
+	static auto SetFlags = [](uint64_t Dest, uint64_t Src, uint64_t Result, OperandSizeInfo Info) -> void
 	{
+		Result &= Info.GetMask();
+
 		if (Result == 0)
 			FL.SetFlags(EFlags::Zero);
 
-		if ((Dest & HighestBit) && (Src & HighestBit))
+		if ((Dest & Info.GetDestinationHighestBit()) && (Src & Info.GetDestinationHighestBit()))
 			FL.SetFlags(EFlags::Overflow);
 	};
 
@@ -148,8 +152,10 @@ void OpcodeXOR(Operand OperantSpecifics, OperandSizeInfo SizeInfo, uint8_t* Data
 		return DestinationData ^ SourceData;
 	};
 
-	static auto SetFlags = [](uint64_t Dest, uint64_t Src, uint64_t Result, uint8_t HighestBit) -> void
+	static auto SetFlags = [](uint64_t Dest, uint64_t Src, uint64_t Result, OperandSizeInfo Info) -> void
 	{
+		Result &= Info.GetMask();
+
 		if (Result == 0)
 			FL.SetFlags(EFlags::Zero);
 	};
@@ -164,9 +170,11 @@ void OpcodeNOT(Operand OperantSpecifics, OperandSizeInfo SizeInfo, uint8_t* Data
 		return ~DestinationData;
 	};
 
-	static auto SetFlags = [](uint64_t Dest, uint64_t Src, uint64_t Result, uint8_t HighestBit) -> void
+	static auto SetFlags = [](uint64_t Dest, uint64_t Src, uint64_t Result, OperandSizeInfo Info) -> void
 	{
-		Result = 0xFFFFFFFF < HighestBit
+		uint64_t mask = Info.GetMask();
+
+		Result &= Info.GetMask();
 
 		if (Result == 0)
 			FL.SetFlags(EFlags::Zero);
@@ -182,8 +190,10 @@ void OpcodeNOR(Operand OperantSpecifics, OperandSizeInfo SizeInfo, uint8_t* Data
 		return !(DestinationData | SourceData);
 	};
 
-	static auto SetFlags = [](uint64_t Dest, uint64_t Src, uint64_t Result, uint8_t HighestBit) -> void
+	static auto SetFlags = [](uint64_t Dest, uint64_t Src, uint64_t Result, OperandSizeInfo Info) -> void
 	{
+		Result &= Info.GetMask();
+
 		if (Result == 0)
 			FL.SetFlags(EFlags::Zero);
 
@@ -200,8 +210,10 @@ void OpcodeNAND(Operand OperantSpecifics, OperandSizeInfo SizeInfo, uint8_t* Dat
 		return !(DestinationData & SourceData);
 	};
 
-	static auto SetFlags = [](uint64_t Dest, uint64_t Src, uint64_t Result, uint8_t HighestBit) -> void
+	static auto SetFlags = [](uint64_t Dest, uint64_t Src, uint64_t Result, OperandSizeInfo Info) -> void
 	{
+		Result &= Info.GetMask();
+
 		if (Result == 0)
 			FL.SetFlags(EFlags::Zero);
 

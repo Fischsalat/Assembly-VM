@@ -2,6 +2,8 @@
 #include <cassert>
 #include <vector>
 
+#include <bitset>
+
 #include "Mnemonics.h"
 #include "Dispatcher.h"
 #include "Registers.h"
@@ -78,12 +80,12 @@ public:
 
 		RegisterInfo DestRegInfo;
 		DestRegInfo.RegisterIdx = 0x0;
-		DestRegInfo.SubRegShiftCount = 0b111;
+		DestRegInfo.SubRegShiftCount = 0b10;
 		DestRegInfo.bIsFloatRegister = false;
 
 		RegisterInfo SrcRegInfo;
 		SrcRegInfo.RegisterIdx = 0x3;
-		SrcRegInfo.SubRegShiftCount = 0b111;
+		SrcRegInfo.SubRegShiftCount = 0b10;
 		SrcRegInfo.bIsFloatRegister = false;
 
 		SetRgisters(ERegisters::Q0, 0b11011, ERegisters::Q3, 0b10101);
@@ -94,10 +96,10 @@ public:
 
 
 		SetRgisters(ERegisters::Q0, 0b11011, ERegisters::Q3, 0b10101);
-		Tests::TestOpcode<true>(Mnemonic::OR, EAddressingMode::Register, DestRegInfo, EAddressingMode::Register, SrcRegInfo, 0b11011 | 0b10101, { EFlags::Overflow });
+		Tests::TestOpcode<true>(Mnemonic::OR, EAddressingMode::Register, DestRegInfo, EAddressingMode::Register, SrcRegInfo, 0b11011 | 0b10101, { });
 		
 		SetRgisters(ERegisters::Q0, 0b11011, ERegisters::Q3, 0b10101);
-		Tests::TestOpcode<true>(Mnemonic::OR, EAddressingMode::Register, DestRegInfo, EAddressingMode::Immediate, 0b10101ull, 0b11011 | 0b10101, { EFlags::Overflow });
+		Tests::TestOpcode<true>(Mnemonic::OR, EAddressingMode::Register, DestRegInfo, EAddressingMode::Immediate, 0b10101ull, 0b11011 | 0b10101, { });
 
 
 		SetRgisters(ERegisters::Q0, 0b11011, ERegisters::Q3, 0b10101);
@@ -110,8 +112,8 @@ public:
 		SetRgisters(ERegisters::Q0, 0b11011, ERegisters::Q3, 0b10101);
 		Tests::TestOpcode<false>(Mnemonic::NOT, EAddressingMode::Register, DestRegInfo, EAddressingMode::None, 0, ~0b11011, { });
 
-		SetRgisters(ERegisters::Q0, 0b11111, ERegisters::Q3, 0b10101);
-		Tests::TestOpcode<false>(Mnemonic::NOT, EAddressingMode::Register, DestRegInfo, EAddressingMode::None, 0, ~0b11111, { EFlags::Zero });
+		SetRgisters(ERegisters::Q0, -1, ERegisters::Q3, 0b10101);
+		Tests::TestOpcode<false>(Mnemonic::NOT, EAddressingMode::Register, DestRegInfo, EAddressingMode::None, 0, 0, { EFlags::Zero });
 	}
 
 private:
@@ -158,8 +160,12 @@ private:
 		ByteStream Bytecode(ByteScript, sizeof(ByteScript));
 
 		Dispatcher::Dispatch(Bytecode);
+		
+		std::cout << std::bitset<64>(Result) << std::endl;
+		std::cout << std::bitset<64>(GetDestinationData(DestAddrMode, (uint8_t*)&Dest)) << std::endl;
 
-		assert(GetDestinationData(DestAddrMode, (uint8_t*)&Dest) == Result, "Instructin did not yield expected result!");
+		// requires fix for 32-bit operations compared to a 64-bit result (eg. clearing all bits from the upper 32-bit of the result)
+		assert(GetDestinationData(DestAddrMode, (uint8_t*)&Dest) == Result, "Instruction did not yield expected result!");
 
 		for (auto Flag : ExpectedFlags)
 		{

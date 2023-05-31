@@ -137,6 +137,11 @@ public:
         return 1ull << GetDestinationBitSize();
     }
 
+    inline uint64_t GetMask()
+    {
+        return ~(0xFFFFFFFFFFFFFFFFull >> GetDestinationBitSize());
+    }
+
     inline int32_t GetSourceSizeBytes()
     {
         return SrcSize + 1;
