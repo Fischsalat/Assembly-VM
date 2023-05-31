@@ -126,10 +126,15 @@ public:
     {
         return DestSize + 1;
     }
-
-    inline int32_t GetDestinationHighestBit()
+    
+    inline int32_t GetDestinationBitSize()
     {
-        return 1 << DestSize;
+        return GetDestinationSizeBytes() << 3;
+    }
+
+    inline uint64_t GetDestinationHighestBit()
+    {
+        return 1ull << GetDestinationBitSize();
     }
 
     inline int32_t GetSourceSizeBytes()
