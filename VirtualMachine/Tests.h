@@ -7,8 +7,9 @@
 #include "Mnemonics.h"
 #include "Dispatcher.h"
 #include "Registers.h"
+#include "Opcode.h"
 
-extern uint64_t GetDestinationData(EAddressingMode Mode, uint8_t* Data);
+extern uint64_t GetDestinationData(EAddressingMode Mode, uint8_t* Data, uint8_t& OutByteCount);
 extern uint64_t GetSourceData(EAddressingMode Mode, uint8_t* Data, OperandSizeInfo SizeInfo);
 
 class Tests
@@ -29,8 +30,9 @@ public:
 		uint8_t* Immediate = reinterpret_cast<uint8_t*>(ImmediateBytes);
 		uint8_t* Register = reinterpret_cast<uint8_t*>(RegisterBytes);
 
-		assert(GetDestinationData(EAddressingMode::Immediate, Immediate) == 0, "GetDestinationData can not handle Immediate destinations. Invalid!");
-		assert(GetDestinationData(EAddressingMode::Register, Register + 1) == 0x69, "Register was NOT 0x69");
+		uint8_t OutByteSize = 0;
+		assert(GetDestinationData(EAddressingMode::Immediate, Immediate, OutByteSize) == 0, "GetDestinationData can not handle Immediate destinations. Invalid!");
+		assert(GetDestinationData(EAddressingMode::Register, Register + 1, OutByteSize) == 0x69, "Register was NOT 0x69");
 
 		OperandSizeInfo Info;
 		Info.SrcAddressingMode = 0b00;
@@ -114,6 +116,68 @@ public:
 
 		SetRgisters(ERegisters::Q0, -1, ERegisters::Q3, 0b10101);
 		Tests::TestOpcode<false>(Mnemonic::NOT, EAddressingMode::Register, DestRegInfo, EAddressingMode::None, 0, 0, { EFlags::Zero });
+	
+
+
+
+		SetRgisters(ERegisters::Q0, 0b11011, ERegisters::Q3, 0b10101);
+		Tests::TestOpcode<false>(Mnemonic::INC, EAddressingMode::Register, DestRegInfo, EAddressingMode::None, 0, 0b11011 + 1, { });
+
+		SetRgisters(ERegisters::Q0, -1, ERegisters::Q3, 0b10101);
+		Tests::TestOpcode<false>(Mnemonic::INC, EAddressingMode::Register, DestRegInfo, EAddressingMode::None, 0, 0, { EFlags::Zero });
+
+
+		SetRgisters(ERegisters::Q0, 0b11011, ERegisters::Q3, 0b10101);
+		Tests::TestOpcode<false>(Mnemonic::DEC, EAddressingMode::Register, DestRegInfo, EAddressingMode::None, 0, 0b11011 - 1, { });
+
+		SetRgisters(ERegisters::Q0, 1, ERegisters::Q3, 0b10101);
+		Tests::TestOpcode<false>(Mnemonic::DEC, EAddressingMode::Register, DestRegInfo, EAddressingMode::None, 0, 0, { EFlags::Zero });
+
+
+		SetRgisters(ERegisters::Q0, 0b11011, ERegisters::Q3, 0b10101);
+		Tests::TestOpcode<true>(Mnemonic::ADD, EAddressingMode::Register, DestRegInfo, EAddressingMode::Register, SrcRegInfo, 0b11011 + 0b10101, { });
+
+		SetRgisters(ERegisters::Q0, 0b11011, ERegisters::Q3, 0b10101);
+		Tests::TestOpcode<true>(Mnemonic::ADD, EAddressingMode::Register, DestRegInfo, EAddressingMode::Immediate, 0b10101ull, 0b11011 + 0b10101, { });
+
+
+		SetRgisters(ERegisters::Q0, 0b11011, ERegisters::Q3, 0b10101);
+		Tests::TestOpcode<true>(Mnemonic::SUB, EAddressingMode::Register, DestRegInfo, EAddressingMode::Register, SrcRegInfo, 0b11011 - 0b10101, { });
+
+		SetRgisters(ERegisters::Q0, 0b11011, ERegisters::Q3, 0b10101);
+		Tests::TestOpcode<true>(Mnemonic::SUB, EAddressingMode::Register, DestRegInfo, EAddressingMode::Immediate, 0b10101ull, 0b11011 - 0b10101, { });
+
+
+		SetRgisters(ERegisters::Q0, 0b11011, ERegisters::Q3, 0b10101);
+		Tests::TestOpcode<true>(Mnemonic::MUL, EAddressingMode::Register, DestRegInfo, EAddressingMode::Register, SrcRegInfo, 0b11011 * 0b10101, { });
+
+		SetRgisters(ERegisters::Q0, 0b11011, ERegisters::Q3, 0b10101);
+		Tests::TestOpcode<true>(Mnemonic::MUL, EAddressingMode::Register, DestRegInfo, EAddressingMode::Immediate, 0b10101ull, 0b11011 * 0b10101, { });
+
+
+		SetRgisters(ERegisters::Q0, 0b11011, ERegisters::Q3, 0b10101);
+		Tests::TestOpcode<true>(Mnemonic::DIV, EAddressingMode::Register, DestRegInfo, EAddressingMode::Register, SrcRegInfo, 0b11011 / 0b10101, { });
+
+		SetRgisters(ERegisters::Q0, 0b11011, ERegisters::Q3, 0b10101);
+		Tests::TestOpcode<true>(Mnemonic::DIV, EAddressingMode::Register, DestRegInfo, EAddressingMode::Immediate, 0b10101, 0b11011 / 0b10101, { });
+
+
+
+
+		SetRgisters(ERegisters::Q0, 0b11011, ERegisters::Q3, 0b10101);
+		Tests::TestOpcode<true>(Mnemonic::TEST, EAddressingMode::Register, DestRegInfo, EAddressingMode::Register, DestRegInfo, 0b11011, { });
+
+		SetRgisters(ERegisters::Q0, 0b11011, ERegisters::Q3, 0b10101);
+		Tests::TestOpcode<true>(Mnemonic::TEST, EAddressingMode::Register, DestRegInfo, EAddressingMode::Immediate, 0b00000, 0b11011, { EFlags::Zero });
+
+		SetRgisters(ERegisters::Q0, 0b00011, ERegisters::Q3, 0b10101);
+		Tests::TestOpcode<true>(Mnemonic::CMP, EAddressingMode::Register, DestRegInfo, EAddressingMode::Register, SrcRegInfo, 0b00011, { EFlags::Lower });
+
+		SetRgisters(ERegisters::Q0, 0b00111, ERegisters::Q3, 0b000011);
+		Tests::TestOpcode<true>(Mnemonic::CMP, EAddressingMode::Register, DestRegInfo, EAddressingMode::Immediate, 0b000011, 0b00111, { EFlags::Greater });
+
+		SetRgisters(ERegisters::Q0, 0b00001, ERegisters::Q3, 0b000001);
+		Tests::TestOpcode<true>(Mnemonic::CMP, EAddressingMode::Register, DestRegInfo, EAddressingMode::Immediate, 0b000001, 0b00001, { EFlags::Zero });
 	}
 
 private:
@@ -160,12 +224,10 @@ private:
 		ByteStream Bytecode(ByteScript, sizeof(ByteScript));
 
 		Dispatcher::Dispatch(Bytecode);
-		
-		std::cout << std::bitset<64>(Result) << std::endl;
-		std::cout << std::bitset<64>(GetDestinationData(DestAddrMode, (uint8_t*)&Dest)) << std::endl;
 
-		// requires fix for 32-bit operations compared to a 64-bit result (eg. clearing all bits from the upper 32-bit of the result)
-		assert(GetDestinationData(DestAddrMode, (uint8_t*)&Dest) == Result, "Instruction did not yield expected result!");
+		uint8_t ByteSize = 0;
+		uint64_t DestinationDataResult = GetDestinationData(DestAddrMode, (uint8_t*)&Dest, ByteSize);
+		assert(MaskValue(DestinationDataResult, ByteSize) == MaskValue(Result, ByteSize), "Instruction did not yield expected result!");
 
 		for (auto Flag : ExpectedFlags)
 		{

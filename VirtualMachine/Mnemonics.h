@@ -89,7 +89,7 @@ struct Operand
 {
 private:
     uint8_t Size : 5; // Size of bytes belonging to this opcode
-    uint8_t DestAddressingMode : 2;  // DestAddressingMode -> MOVED TO struct OperandSizeInfo
+    uint8_t DestAddressingMode : 2;  // SrcAddressingMode -> MOVED TO struct OperandSizeInfo
     uint8_t bHasOperandSizeInfo : 1;
 
     // 0b|1|00|00100

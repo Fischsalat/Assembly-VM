@@ -143,18 +143,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AlgebraicOperations.cpp" />
     <ClCompile Include="BitwiseOperations.cpp" />
     <ClCompile Include="ByteStream.cpp" />
+    <ClCompile Include="ComparisonOperations.cpp" />
     <ClCompile Include="Dispatcher.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Registers.cpp" />
     <ClCompile Include="StackManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AlgebraicOperations.h" />
     <ClInclude Include="BitwiseOperations.h" />
     <ClInclude Include="ByteStream.h" />
+    <ClInclude Include="ComparisonOperations.h" />
     <ClInclude Include="Dispatcher.h" />
     <ClInclude Include="Mnemonics.h" />
+    <ClInclude Include="Opcode.h" />
     <ClInclude Include="Registers.h" />
     <ClInclude Include="StackManager.h" />
     <ClInclude Include="Tests.h" />

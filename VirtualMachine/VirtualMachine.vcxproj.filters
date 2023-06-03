@@ -35,6 +35,12 @@
     <ClCompile Include="BitwiseOperations.cpp">
       <Filter>Header Files\OpcodeImplementation</Filter>
     </ClCompile>
+    <ClCompile Include="AlgebraicOperations.cpp">
+      <Filter>Header Files\OpcodeImplementation</Filter>
+    </ClCompile>
+    <ClCompile Include="ComparisonOperations.cpp">
+      <Filter>Header Files\OpcodeImplementation</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Mnemonics.h">
@@ -56,6 +62,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BitwiseOperations.h">
+      <Filter>Header Files\OpcodeImplementation</Filter>
+    </ClInclude>
+    <ClInclude Include="Opcode.h">
+      <Filter>Header Files\OpcodeImplementation</Filter>
+    </ClInclude>
+    <ClInclude Include="AlgebraicOperations.h">
+      <Filter>Header Files\OpcodeImplementation</Filter>
+    </ClInclude>
+    <ClInclude Include="ComparisonOperations.h">
       <Filter>Header Files\OpcodeImplementation</Filter>
     </ClInclude>
   </ItemGroup>

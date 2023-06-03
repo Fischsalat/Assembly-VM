@@ -1,6 +1,8 @@
 #pragma once
 #include "Dispatcher.h"
 #include "BitwiseOperations.h"
+#include "AlgebraicOperations.h"
+#include "ComparisonOperations.h"
 
 std::array<void(*)(Operand, OperandSizeInfo, uint8_t*), Dispatcher::MaxNumMnemonics> Dispatcher::Mappings;
 
@@ -14,15 +16,15 @@ void Dispatcher::Init()
 	Mappings[(uint8_t)Mnemonic::NOR] = OpcodeNOR;
 	Mappings[(uint8_t)Mnemonic::NAND] = OpcodeNAND;
 
-	Mappings[(uint8_t)Mnemonic::INC] = [](Operand, OperandSizeInfo, uint8_t*) -> void { return; };
-	Mappings[(uint8_t)Mnemonic::DEC] = [](Operand, OperandSizeInfo, uint8_t*) -> void { return; };
-	Mappings[(uint8_t)Mnemonic::ADD] = [](Operand, OperandSizeInfo, uint8_t*) -> void { return; };
-	Mappings[(uint8_t)Mnemonic::SUB] = [](Operand, OperandSizeInfo, uint8_t*) -> void { return; };
-	Mappings[(uint8_t)Mnemonic::MUL] = [](Operand, OperandSizeInfo, uint8_t*) -> void { return; };
-	Mappings[(uint8_t)Mnemonic::DIV] = [](Operand, OperandSizeInfo, uint8_t*) -> void { return; };
+	Mappings[(uint8_t)Mnemonic::INC] = OpcodeINC;
+	Mappings[(uint8_t)Mnemonic::DEC] = OpcodeDEC;
+	Mappings[(uint8_t)Mnemonic::ADD] = OpcodeADD;
+	Mappings[(uint8_t)Mnemonic::SUB] = OpcodeSUB;
+	Mappings[(uint8_t)Mnemonic::MUL] = OpcodeMUL;
+	Mappings[(uint8_t)Mnemonic::DIV] = OpcodeDIV;
 
-	Mappings[(uint8_t)Mnemonic::TEST] = [](Operand, OperandSizeInfo, uint8_t*) -> void { return; };
-	Mappings[(uint8_t)Mnemonic::CMP] = [](Operand, OperandSizeInfo, uint8_t*) -> void { return; };
+	Mappings[(uint8_t)Mnemonic::TEST] = OpcodeTEST;
+	Mappings[(uint8_t)Mnemonic::CMP] = OpcodeCMP;
 
 	Mappings[(uint8_t)Mnemonic::JMP] = [](Operand, OperandSizeInfo, uint8_t*) -> void { return; };
 
@@ -71,8 +73,6 @@ void Dispatcher::Init()
 
 	Mappings[(uint8_t)Mnemonic::SYS] = [](Operand, OperandSizeInfo, uint8_t*) -> void { return; };
 }
-
-extern void ANDImpl(Operand OperantSpecifics, OperandSizeInfo SizeInfo, uint8_t* Data);
 
 void Dispatcher::Dispatch(ByteStream& Stream)
 {
