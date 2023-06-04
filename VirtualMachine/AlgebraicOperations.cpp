@@ -111,3 +111,19 @@ void OpcodeDIV(Operand OperantSpecifics, OperandSizeInfo SizeInfo, uint8_t* Data
 
 	Opcode(OperantSpecifics, SizeInfo, Data, DIV, SetFlags);
 }
+
+void OpcodeMOD(Operand OperantSpecifics, OperandSizeInfo SizeInfo, uint8_t* Data)
+{
+	static auto MOD = [](uint64_t DestinationData, uint64_t SourceData) -> uint64_t
+	{
+		return DestinationData % SourceData;
+	};
+
+	static auto SetFlags = [](uint64_t Dest, uint64_t Src, uint64_t Result, uint8_t ByteCount) -> void
+	{
+		if (Result == 0)
+			FL.SetFlags(EFlags::Zero);
+	};
+
+	Opcode(OperantSpecifics, SizeInfo, Data, MOD, SetFlags);
+}

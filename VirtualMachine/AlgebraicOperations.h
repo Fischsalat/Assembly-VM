@@ -10,3 +10,4 @@ void OpcodeADD(Operand OperantSpecifics, OperandSizeInfo SizeInfo, uint8_t* Data
 void OpcodeSUB(Operand OperantSpecifics, OperandSizeInfo SizeInfo, uint8_t* Data);
 void OpcodeMUL(Operand OperantSpecifics, OperandSizeInfo SizeInfo, uint8_t* Data);
 void OpcodeDIV(Operand OperantSpecifics, OperandSizeInfo SizeInfo, uint8_t* Data);
+void OpcodeMOD(Operand OperantSpecifics, OperandSizeInfo SizeInfo, uint8_t* Data);

@@ -3,7 +3,7 @@
 #include <inttypes.h>
 
 #include "Mnemonics.h"
-#include "ByteStream.h"
+#include "MemoryManager.h"
 
 class Dispatcher
 {
@@ -16,5 +16,5 @@ private:
 public:
 	static void Init();
 
-	static void Dispatch(ByteStream& Stream);
+	static void Dispatch(MemoryManager& Stream);
 };

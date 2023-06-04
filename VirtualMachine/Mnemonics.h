@@ -18,61 +18,62 @@ enum class Mnemonic : uint8_t
     SUB = 0x09,
     MUL = 0x0A,
     DIV = 0x0B,
+    MOD = 0x0C,
 
 
     //Comparison operations
-    TEST = 0x0C, //Bitwise AND but modifies flags
-    CMP = 0x0D, //Substraction but modifies flags
+    TEST = 0x0D, //Bitwise AND but modifies flags
+    CMP = 0x0E, //Substraction but modifies flags
 
 
     //Jump operations
-    JMP = 0x0E, // Jump (no condition)
+    JMP = 0x0F, // Jump (no condition)
 
-    JZ = 0x0F, // Jump zero (zero-flag set)
-    JNZ = 0x10, // Jump not zero (zero-flag not set)
+    JZ = 0x10, // Jump zero (zero-flag set)
+    JNZ = 0x11, // Jump not zero (zero-flag not set)
 
-    JE = 0x11, // Jump equal (zero-flag set) [same as JZ]
-    JNE = 0x12, // Jump not equal (zero-flag not set) [same as JNZ]
+    JE = 0x12, // Jump equal (zero-flag set) [same as JZ]
+    JNE = 0x13, // Jump not equal (zero-flag not set) [same as JNZ]
 
-    JG = 0x13, // Jump greater (greater-flag set)
-    JGE = 0x14, // Jump greater-equal (greater-/ or zero-flag set)
+    JG = 0x14, // Jump greater (greater-flag set)
+    JGE = 0x15, // Jump greater-equal (greater-/ or zero-flag set)
 
-    JL = 0x15, // Jump lower (lower-flag set)
-    JLE = 0x16, // Jump lower-equal (lower-/ or zero-flag set)
+    JL = 0x16, // Jump lower (lower-flag set)
+    JLE = 0x17, // Jump lower-equal (lower-/ or zero-flag set)
 
-    JO = 0x17, // Jump overflow (overflow-flag set)
-    JNO = 0x18, // Jump not overflow (overflow-floag not set)
+    JO = 0x18, // Jump overflow (overflow-flag set)
+    JNO = 0x19, // Jump not overflow (overflow-floag not set)
 
     //Load operations
-    LEA = 0x19, // Load effective address (no type limitations)
+    LEA = 0x1E, // Load effective address (no type limitations)
 
     //Move operations
-    MOV = 0x1A, // Move (no condition)
+    MOV = 0x1F, // Move (no condition)
 
-    CMOVZ = 0x1B,  // Move zero (zero-flag set)
-    CMOVNZ = 0x1C, // Move not zero (zero-flag not set)
+    CMOVZ = 0x20,  // Move zero (zero-flag set)
+    CMOVNZ = 0x21, // Move not zero (zero-flag not set)
 
-    CMOVE = 0x1D,  // Move equal (zero-flag set) [same as JZ]
-    CMOVNE = 0x1E, // Move not equal (zero-flag not set) [same as JNZ]
+    CMOVE = 0x23,  // Move equal (zero-flag set) [same as JZ]
+    CMOVNE = 0x24, // Move not equal (zero-flag not set) [same as JNZ]
 
-    CMOVG = 0x1F,  // Move greater (greater-flag set)
-    CMOVGE = 0x20, // Move greater-equal (greater-/ or zero-flag set)
+    CMOVG = 0x25,  // Move greater (greater-flag set)
+    CMOVGE = 0x26, // Move greater-equal (greater-/ or zero-flag set)
 
-    CMOVL = 0x21,  // Move lower (lower-flag set)
-    CMOVLE = 0x22, // Move lower-equal (lower-/ or zero-flag set)
+    CMOVL = 0x27,  // Move lower (lower-flag set)
+    CMOVLE = 0x28, // Move lower-equal (lower-/ or zero-flag set)
 
-    CMOVO = 0x23,  // Move overflow (overflow-flag set)
-    CMOVNO = 0x24, // Move not overflow (overflow-flag not set)
+    CMOVO = 0x29,  // Move overflow (overflow-flag set)
+    CMOVNO = 0x2A, // Move not overflow (overflow-flag not set)
 
-    PUSH = 0x25, // Pushes a value onto the stack (register -> stack)
-    POP = 0x26,  // Pops a value from the stack (stack -> register)
+    PUSH = 0x30, // Pushes a value onto the stack (register -> stack)
+    POP = 0x31,  // Pops a value from the stack (stack -> register)
 
-    CALL = 0x27, // Call a function 
-    RET = 0x28,  // Return from a function 
+    CALL = 0x34, // Call a function 
+    RET = 0x35,  // Return from a function 
 
-    NOP = 0x29, // No Operation
+    NOP = 0x38, // No Operation
 
-    SYS = 0x30 // Systemcall
+    SYS = 0x40 // Systemcall
 };
 
 enum class EAddressingMode : uint8_t
@@ -87,6 +88,9 @@ enum class EAddressingMode : uint8_t
 
 struct Operand
 {
+private:
+    friend class Tests;
+
 private:
     uint8_t Size : 5; // Size of bytes belonging to this opcode
     uint8_t DestAddressingMode : 2;  // SrcAddressingMode -> MOVED TO struct OperandSizeInfo
@@ -109,13 +113,13 @@ public:
     {
         return bHasOperandSizeInfo;
     }
-
-private:
-    friend class Tests;
 };
 
 struct OperandSizeInfo
 {
+private:
+    friend class Tests;
+
 private:
     uint8_t DestSize : 3;
     uint8_t SrcSize : 3;
@@ -127,21 +131,6 @@ public:
         return DestSize + 1;
     }
     
-    inline int32_t GetDestinationBitSize()
-    {
-        return GetDestinationSizeBytes() << 3;
-    }
-
-    inline uint64_t GetDestinationHighestBit()
-    {
-        return 1ull << GetDestinationBitSize();
-    }
-
-    inline uint64_t GetMask()
-    {
-        return ~(0xFFFFFFFFFFFFFFFFull >> GetDestinationBitSize());
-    }
-
     inline int32_t GetSourceSizeBytes()
     {
         return SrcSize + 1;
@@ -151,7 +140,4 @@ public:
     {
         return static_cast<EAddressingMode>(SrcAddressingMode);
     }
-
-private:
-    friend class Tests;
 };

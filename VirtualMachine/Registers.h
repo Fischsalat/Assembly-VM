@@ -2,10 +2,12 @@
 #include <inttypes.h>
 #include <type_traits>
 
-#include "ByteStream.h"
-
 struct RegisterSet
 {
+private:
+    friend class Tests;
+
+public:
     /* Integer Registers*/
     //Volatile
     union { uint64_t Q0 = 0x0; uint32_t D0; uint16_t W0; uint8_t B0; };
@@ -66,6 +68,9 @@ enum class ESubRegister
 struct RegisterInfo
 {
 private:
+    friend class Tests;
+
+private:
     uint8_t RegisterIdx : 5;
     uint8_t SubRegShiftCount : 2;
     uint8_t bIsFloatRegister : 1;
@@ -90,9 +95,6 @@ public:
     {
         return bIsFloatRegister;
     }
-
-private:
-    friend class Tests;
 };
 
 enum class EFlags : uint64_t
@@ -148,7 +150,5 @@ public:
 };
 
 inline FlagsRegister FL;
-
-inline ByteStream PC;
 
 inline RegisterSet Registers;

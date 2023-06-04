@@ -64,9 +64,10 @@ public:
 			0b00000000, 0b10100001, 0b01000000, 0b01100000, 0b01100011
 		};
 
-		ByteStream Bytecode(ByteScript, sizeof(ByteScript));
+		MemoryManager& Manager = MemoryManager::Get();
+		Manager.LoadCodeSegment(ByteScript, sizeof(ByteScript));
 
-		Dispatcher::Dispatch(Bytecode);
+		Dispatcher::Dispatch(Manager);
 
 		assert(Registers.Q0 == 0b10001, "Instructin AND [Reg, Reg] did not work!");
 	}
@@ -162,6 +163,13 @@ public:
 		Tests::TestOpcode<true>(Mnemonic::DIV, EAddressingMode::Register, DestRegInfo, EAddressingMode::Immediate, 0b10101, 0b11011 / 0b10101, { });
 
 
+		SetRgisters(ERegisters::Q0, 0b11011, ERegisters::Q3, 0b10101);
+		Tests::TestOpcode<true>(Mnemonic::MOD, EAddressingMode::Register, DestRegInfo, EAddressingMode::Register, SrcRegInfo, 0b11011 % 0b10101, { });
+
+		SetRgisters(ERegisters::Q0, 0b11011, ERegisters::Q3, 0b10101);
+		Tests::TestOpcode<true>(Mnemonic::MOD, EAddressingMode::Register, DestRegInfo, EAddressingMode::Immediate, 0b10101, 0b11011 % 0b10101, { });
+
+
 
 
 		SetRgisters(ERegisters::Q0, 0b11011, ERegisters::Q3, 0b10101);
@@ -221,9 +229,10 @@ private:
 			}
 		}
 
-		ByteStream Bytecode(ByteScript, sizeof(ByteScript));
+		MemoryManager& Manager = MemoryManager::Get();
+		Manager.LoadCodeSegment(ByteScript, sizeof(ByteScript));
 
-		Dispatcher::Dispatch(Bytecode);
+		Dispatcher::Dispatch(Manager);
 
 		uint8_t ByteSize = 0;
 		uint64_t DestinationDataResult = GetDestinationData(DestAddrMode, (uint8_t*)&Dest, ByteSize);

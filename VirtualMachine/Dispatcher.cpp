@@ -22,6 +22,7 @@ void Dispatcher::Init()
 	Mappings[(uint8_t)Mnemonic::SUB] = OpcodeSUB;
 	Mappings[(uint8_t)Mnemonic::MUL] = OpcodeMUL;
 	Mappings[(uint8_t)Mnemonic::DIV] = OpcodeDIV;
+	Mappings[(uint8_t)Mnemonic::MOD] = OpcodeMOD;
 
 	Mappings[(uint8_t)Mnemonic::TEST] = OpcodeTEST;
 	Mappings[(uint8_t)Mnemonic::CMP] = OpcodeCMP;
@@ -74,7 +75,7 @@ void Dispatcher::Init()
 	Mappings[(uint8_t)Mnemonic::SYS] = [](Operand, OperandSizeInfo, uint8_t*) -> void { return; };
 }
 
-void Dispatcher::Dispatch(ByteStream& Stream)
+void Dispatcher::Dispatch(MemoryManager& Stream)
 {
 	static_assert(sizeof(Operand) == sizeof(uint8_t));
 	static_assert(sizeof(OperandSizeInfo) == sizeof(uint8_t));
@@ -83,13 +84,12 @@ void Dispatcher::Dispatch(ByteStream& Stream)
 	Operand OperandSpecifics;
 	OperandSizeInfo SizeInfo;
 
-	Stream.Read(&Opcode, sizeof(uint8_t));
-	Stream.Read(&OperandSpecifics, sizeof(uint8_t));
-	Stream.ReadSamePos(&SizeInfo, sizeof(uint8_t));
-	Stream.IncrementPos(OperandSpecifics.HasSizeInfoByte());
+	Stream.ReadInstructionsFromCode(&Opcode, sizeof(uint8_t));
+	Stream.ReadInstructionsFromCode(&OperandSpecifics, sizeof(uint8_t));
+	Stream.ReadInstructionsFromCode(&SizeInfo, sizeof(uint8_t), OperandSpecifics.HasSizeInfoByte());
 
 	uint8_t Buffer[0x20] = { 0x0 };
-	Stream.Read(Buffer, OperandSpecifics.GetNumBytes());
+	Stream.ReadInstructionsFromCode(Buffer, OperandSpecifics.GetNumBytes());
 
 	Mappings[Opcode](OperandSpecifics, SizeInfo, Buffer);
 }

@@ -23,12 +23,6 @@
     <ClCompile Include="Dispatcher.cpp">
       <Filter>Header Files</Filter>
     </ClCompile>
-    <ClCompile Include="StackManager.cpp">
-      <Filter>Header Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ByteStream.cpp">
-      <Filter>Header Files</Filter>
-    </ClCompile>
     <ClCompile Include="Registers.cpp">
       <Filter>Header Files</Filter>
     </ClCompile>
@@ -40,6 +34,9 @@
     </ClCompile>
     <ClCompile Include="ComparisonOperations.cpp">
       <Filter>Header Files\OpcodeImplementation</Filter>
+    </ClCompile>
+    <ClCompile Include="MemoryManager.cpp">
+      <Filter>Header Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -55,12 +52,6 @@
     <ClInclude Include="Dispatcher.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="StackManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ByteStream.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="BitwiseOperations.h">
       <Filter>Header Files\OpcodeImplementation</Filter>
     </ClInclude>
@@ -72,6 +63,9 @@
     </ClInclude>
     <ClInclude Include="ComparisonOperations.h">
       <Filter>Header Files\OpcodeImplementation</Filter>
+    </ClInclude>
+    <ClInclude Include="MemoryManager.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
