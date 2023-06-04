@@ -15,6 +15,7 @@ private:
 	uint8_t* MemBlock;
 	uint32_t CurrentCodePos;
 	uint32_t LoadedCodeSize;
+	uint32_t LoadedDataSize;
 	uint32_t CurrentStackPos;
 	//HeapHere;
 
@@ -28,6 +29,7 @@ private:
 
 public:
 	void LoadCodeSegment(uint8_t* Code, uint32_t Size);
+	void LoadDataSegment(uint8_t* Data, uint32_t Size);
 
 	void ReadInstructionsFromCode(void* OutData, int Size, bool bRead = true);
 

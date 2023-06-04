@@ -29,6 +29,18 @@ void MemoryManager::LoadCodeSegment(uint8_t* Code, uint32_t Size)
 	memcpy(MemBlock, Code, Size);
 }
 
+void MemoryManager::LoadDataSegment(uint8_t* Data, uint32_t Size)
+{
+	if (Size > DataSetgmentSize)
+		throw std::exception("Size of data passed to LoadDataSegment exceeds DataSetgmentSize!");
+
+	memset(MemBlock + CodeSegmentSize, 0, LoadedCodeSize);
+
+	LoadedDataSize = Size;
+
+	memcpy(MemBlock + CodeSegmentSize, Data, Size);
+}
+
 void MemoryManager::ReadInstructionsFromCode(void* OutData, int Size, bool bRead)
 {
 	if (bRead && OutData && (CurrentCodePos + Size) <= CodeSegmentSize && Size > 0)
